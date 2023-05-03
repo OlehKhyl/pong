@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="game-container">
+    <div class="paddle paddle-left" id="paddle"></div>
+    <div class="paddle paddle-right" id="computerPaddle"></div>
+    <div class="ball"></div>
+    </div>
+</body>
+<style>
+
+    body {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+}
+
+    .game-container {
+  width: 600px;
+  height: 400px;
+  background-color: #000;
+  position: relative;
+}
+
+.paddle {
+  width: 10px;
+  height: 80px;
+  background-color: #fff;
+  position: absolute;
+}
+
+.paddle-left {
+  left: 20px;
+  top: 160px;
+}
+
+.paddle-right {
+  right: 20px;
+  top: 160px;
+}
+
+.ball {
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  position: absolute;
+  top: 190px;
+  left: 290px;
+  border-radius: 50%;
+}
+</style>
+<script>
+    const ball = document.querySelector('.ball');
+    const computerPaddle = document.getElementById('computerPaddle');
+    let ballX = 290;
+    let ballY = 190;
+    let ballSpeedX = 5;
+    let ballSpeedY = 5;
+    let computerPaddleSpeedY = 0;
+    let canvasHeight = 400;
+    let computerPaddleHeight = 80;
+
+    function moveBall() {
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
+
+        if (ballY > 380 || ballY < 0) {
+            ballSpeedY = -ballSpeedY;
+        }
+
+        ball.style.left = ballX + 'px';
+        ball.style.top = ballY + 'px';
+    }
+
+    setInterval(moveBall, 16);
+
+    var paddle = document.getElementById('paddle');
+
+    // добавляем обработчик события для движения мыши
+    document.addEventListener('mousemove', function (event) {
+        // получаем положение мыши по оси Y
+        var mouseY = event.clientY;
+
+        // задаем новую вертикальную координату ракетки
+        paddle.style.top = mouseY - (paddle.offsetHeight / 2) + 'px';
+    });
+
+    function updateComputerPaddle(ball, computerPaddle) {
+        // Расстояние между центром ракетки и мячом по вертикали
+        var distance = ball.offsetTop - computerPaddle.offsetTop;
+    
+        // Задержка между движениями ракетки
+        var delay = 20;
+
+        // Максимальная скорость ракетки
+        var maxSpeed = 5;
+
+        // Если мяч выше центра ракетки, двигаем ракетку вверх
+        if (distance < 0) {
+            computerPaddleSpeedY = Math.max(distance / delay, -maxSpeed);
+        }
+        // Если мяч ниже центра ракетки, двигаем ракетку вниз
+        else if (distance > 0) {
+            computerPaddleSpeedY = Math.min(distance / delay, maxSpeed);
+        }
+        // Если мяч находится на уровне центра ракетки, ракетка не двигается
+        else {
+            computerPaddleSpeedY = 0;
+        }
+
+        computerPaddle.style.top = ball.offsetTop + computerPaddleSpeedY +"px";
+    }
+    
+    function checkCollision(ball, paddle) {
+            // Получаем координаты мяча и ракетки
+            var ballRect = ball.getBoundingClientRect();
+            var paddleRect = paddle.getBoundingClientRect();
+
+            // Проверяем, пересекаются ли мяч и ракетка
+            if (ballRect.right >= paddleRect.left &&
+                ballRect.left <= paddleRect.right &&
+                ballRect.bottom >= paddleRect.top &&
+                ballRect.top <= paddleRect.bottom) {
+                return true;  // Если да, возвращаем true
+            } else {
+                return false; // Если нет, возвращаем false
+            }
+        }
+
+        function update() {
+            // ...
+
+            // Проверяем, пересекается ли мяч с ракетками
+            if (checkCollision(ball, paddle) || checkCollision(ball, computerPaddle)) {
+                // Если да, меняем направление движения мяча
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // ...
+        }
+
+
+    setInterval(function() {
+        updateComputerPaddle(ball, computerPaddle);
+    }, 16);
+    setInterval(update, 16);
+</script>
+</html>
